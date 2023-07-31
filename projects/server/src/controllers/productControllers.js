@@ -14,7 +14,7 @@ module.exports = {
           const catId = +req.query.catId;
           const sort = req.query.sort || 'DESC';
           const sortBy = req.query.sortBy || 'createdAt';
-          const condition = { };
+          const condition = {};
       
           if (search) {
             condition[Op.or] = [{ productName: { [Op.like]: `%${search}%` } }];
@@ -73,8 +73,10 @@ module.exports = {
         try {
             const id = req.params.id;
             const updateFields = {};
-            if (req.body.productImage) {
-                updateFields.productImage = req.body.productImage;
+            console.log(req.file);
+            if (req.file) {
+              console.log('image', req.file.filename);
+              updateFields.productImage = req.file.filename;
             }
             if (req.body.productName) {
                 updateFields.productName = req.body.productName;
@@ -89,13 +91,15 @@ module.exports = {
                 updateFields.productDescription = req.body.productDescription;
             }
             if (req.body.Category) {
-                updateFields.CategoryId = req.body.Category;
+                updateFields.CategoryId = req.body.CategoryId;
             }
             const result = await product.update(updateFields, {
                 where: { id: id }
             });
+            console.log(updateFields);
             res.status(200).send({msg: "Success to edit product" });
         } catch (error) {
+          console.log(error);
             res.status(400).send({ error, msg: "Failed to edit product" });
         }
     },

@@ -1,26 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Button,
-  Center,
-  Heading,
-  Text,
-  Stack,
-  Image,
-  Flex,
-  HStack,
-} from '@chakra-ui/react';
+  Box,Button,Center,Heading,Text,Stack,Image,Flex,HStack} from '@chakra-ui/react';
 import Axios from 'axios';
-import {Deactivate} from './deactivateProduct'; 
-import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons';
+import { DeactivateProduct } from './deactivateProduct';
+import { EditIcon } from '@chakra-ui/icons';
 import { useParams } from 'react-router-dom';
+import { EditModal } from './editModal';
+import { PaginationControls } from '../pagination';
+import { AddProductButton } from './addProductButton';
+import { AddCategoryButton } from './addCategoryButton';
 
 export const DashboardProduct = () => {
   const { id } = useParams();
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalPage, setTotalPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const getProducts = async (page, limit) => {
     try {
@@ -32,44 +30,61 @@ export const DashboardProduct = () => {
       console.log(error);
     }
   };
-
+  const getCategories = async () => {
+    try {
+      const response = await Axios.get('http://localhost:8000/api/categories');
+      setCategories(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
-    getProducts(currentPage, itemsPerPage);
+    getProducts(currentPage, itemsPerPage)
+    getCategories();
   }, [currentPage, itemsPerPage]);
-
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPage) {
       setCurrentPage(newPage);
     }
   };
-
   const handleItemsPerPageChange = (newLimit) => {
     setItemsPerPage(newLimit);
     setCurrentPage(1);
   };
-console.log(products);
+  const handleProductEdit = (product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+  const handleProductSave = (updatedProduct) => {
+    const updatedProducts = products.map((product) => {
+      if (product.id === updatedProduct.id) {
+        return updatedProduct;
+      }
+      return product;
+    });
+    setProducts(updatedProducts);
+    setIsModalOpen(false);
+  };
   return (
-    <>
-      <Flex direction={{ base: 'column', sm: 'row', md: 'row', lg: 'row' }} justifyContent={'center'} flexWrap={'wrap'} gap={5}>
-        {products?.map((item) => (
+    <Center bg={'green.50'}>
 
+    <Box  w={'90%'} py={10}>
+      
+    <Text size={'2xl'}>Category</Text>
+    <AddCategoryButton/>
+    <Text size={'2xl'}>Product</Text>
+        <AddProductButton/>
+      <Flex direction={{ base: 'column', sm: 'row', md: 'row', lg: 'row' }} justifyContent={'center'} flexWrap={'wrap'} gap={5} mx={'auto'}>
+        {products?.map((item) => (
           <Box
-            key={item.id}
-            mt={5}
-            role={'group'}
-            p={4}
-            maxW={'200px'}
-            w={'full'}
-            bg={'white'}
-            boxShadow={'2xl'}
-            rounded={'lg'}
-            justifyContent={'center'}
-            transition={'transform .2s'}
-            zIndex={1}
+            key={item.id} mx={"auto"} mt={5} role={'group'} p={4} maxW={'200px'}
+            w={'full'} bg={'white'} boxShadow={'2xl'} rounded={'lg'} justifyContent={'center'}
+            transition={'transform .2s'} zIndex={1}
             _hover={{
               transform: 'scale(1.05)',
+              cursor: 'pointer'
             }}
-          >
+            >
             <Box rounded={'lg'} height={'140px'} overflow="hidden">
               <Image
                 rounded={'lg'}
@@ -79,21 +94,23 @@ console.log(products);
                 objectFit={'cover'}
                 src={`http://localhost:8000/${item?.productImage}`}
                 alt={'#'}
-                transition="transform 0.2s ease-in-out" 
+                transition="transform 0.2s ease-in-out"
                 _groupHover={{
-                  transform: 'scale(1.1)', 
+                  transform: 'scale(1.1)',
                 }}
-              />
+                />
             </Box>
             <Stack pt={4} align={'center'}>
               <Heading fontSize={'sm'} fontFamily={'body'} fontWeight={500} mt={2}>
                 {item.productName}
               </Heading>
               <HStack>
-                <Button >Edit</Button>
-                  <Deactivate
-                    blogId={item?.id}
-                    isDeleted={item?.isDeleted}
+                <Button onClick={() => handleProductEdit(item)} bg={"transparent"} size="sm">
+                  <EditIcon color={"green"}/>
+                </Button>
+                <DeactivateProduct
+                  productId={item?.id}
+                  isDeleted={item?.isDeleted}
                   />
               </HStack>
             </Stack>
@@ -101,29 +118,20 @@ console.log(products);
         ))}
       </Flex>
       <Box mt={5} display="flex" justifyContent="center" alignItems="center">
-        <Button
-          onClick={() => handlePageChange(currentPage - 1)}
-          isDisabled={currentPage === 1}
-          mr={2}
-          size="sm"
-          bg={"green"}
-        >
-          <ArrowBackIcon color={"white"}></ArrowBackIcon>
-        </Button>
-        <Text fontSize="sm" mr={2}>
-          Page {currentPage} of {totalPage}
-        </Text>
-        <Button
-          onClick={() => handlePageChange(currentPage + 1)}
-          isDisabled={currentPage >= totalPage}
-          ml={2}
-          size="sm"
-          bg={"green"}
-        >
-          <ArrowForwardIcon color={"white"}></ArrowForwardIcon>
-        </Button>
+      <PaginationControls
+        currentPage={currentPage}
+        totalPage={totalPage}
+        handlePageChange={handlePageChange}
+        />
       </Box>
-    </>
+      <EditModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        selectedProduct={selectedProduct}
+        onSave={handleProductSave}
+        categories={categories}
+        />
+    </Box>
+        </Center>
   );
 };
-

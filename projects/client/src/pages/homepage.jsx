@@ -21,7 +21,6 @@ export const Homepage = () => {
       <Heading fontSize={'md'} fontFamily={'body'} fontWeight={500} color={'green'}>
             Product
       </Heading>
-     
       <Product/>
       </Stack>
         </Box>

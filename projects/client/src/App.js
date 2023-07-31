@@ -31,19 +31,18 @@ const router = createBrowserRouter([
    { path: '/admin', element: <AdminDashboard />, children: [
       { path: '', element: <AdminHome />},
       { path: 'cashier', element: <Cashier />}
-   ]}
-   [
-      {path:"/",
+   ]},
+   
+    {path:"/",
     element:<Navbar/>,
     children:[
       {path: "/",element:<Homepage/>},
-      {path: "detail",element:<Detailpage/>},
-      {path: "create",element:<CreateProduct/>},
-      {path: "dashboard",element:<DashboardProduct/>},
     ]
-    }
+  },
+  {path: "/dashboard",element:<DashboardProduct/>},
+  {path: "/cashier",element:<DashboardCashier/>},
     ]
-])
+)
   
 function App() {
   const token = localStorage.getItem("token");
