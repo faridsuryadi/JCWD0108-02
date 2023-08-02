@@ -3,7 +3,7 @@ import { Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButto
 import { CreateProduct } from './createProduct';
 import { AddCashier } from './createCashier';
 
-export const AddCahierButton = () => {
+export const AddCashierButton = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => {

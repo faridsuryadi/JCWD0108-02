@@ -1,10 +1,10 @@
-// ProductModal.js
 import React from 'react';
 import {
   Modal, ModalOverlay, ModalContent, ModalHeader,
   ModalCloseButton, ModalBody, ModalFooter, Button
 } from '@chakra-ui/react';
 import { EditProduct } from './editProduct';
+import { ChangeProfilePicture } from './imgProfle';
 
 export const EditModal = ({ isOpen, onClose, selectedProduct, onSave, categories }) => {
   return (

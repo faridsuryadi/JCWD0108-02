@@ -4,60 +4,65 @@ const category = db.Category
 const {Op, Sequelize, where} = require('sequelize')
 
 module.exports = {
-    getProduct: async (req, res) => {
-        try {
-          const id = req.params.id
-          const page = +req.query.page || 1;
-          const limit = +req.query.limit || 10;
-          const offset = (page - 1) * limit;
-          const search = req.query.search;
-          const catId = +req.query.catId;
-          const sort = req.query.sort || 'DESC';
-          const sortBy = req.query.sortBy || 'createdAt';
-          const condition = {};
-      
-          if (search) {
-            condition[Op.or] = [{ productName: { [Op.like]: `%${search}%` } }];
-          }
-      
-          if (catId) {
-            condition.CategoryId = catId;
-          }
-      
-          const result = await product.findAll({
-            include: [
-              {
-                model: category,
-                attributes: { exclude: ['createdAt', 'updatedAt', 'isDeleted'] },
-              },
-            ],
-            attributes: [
-              'id',
-              'productName',
-              'productImage',
-              'productDescription',
-              'productPrice',
-              'CategoryId',
-              'isDeleted',
-            ],
-            where: condition,
-            subQuery: false,
-            offset,
-            limit,
-          });
-      
-          const total = await product.count({ where: condition });
-      
-          res.status(200).send({
-            totalPage: Math.ceil(total / limit),
-            currentPage: page,
-            totalProduct: total,
-            result,
-          });
-        } catch (error) {
-          res.status(400).send(error);
-        }
-      },
+  getProduct: async (req, res) => {
+    try {
+      const id = req.params.id;
+      const page = +req.query.page || 1;
+      const limit = +req.query.limit || 10;
+      const offset = (page - 1) * limit;
+      const search = req.query.search;
+      const catId = +req.query.catId;
+      const sortField = req.query.sortField || 'productName'; 
+  
+      const condition = {};
+
+      const sortingField = sortField.endsWith('DESC') ? sortField.slice(0, -4) : sortField;
+      const sortOrder = sortField.endsWith('DESC') ? 'DESC' : 'ASC';
+  
+      if (search) {
+        condition[Op.or] = [{ productName: { [Op.like]: `%${search}%` } }];
+      }
+  
+      if (catId) {
+        condition.CategoryId = catId;
+      }
+  
+      const result = await product.findAll({
+        include: [
+          {
+            model: category,
+            attributes: { exclude: ['createdAt', 'updatedAt', 'isDeleted'] },
+          },
+        ],
+        attributes: [
+          'id',
+          'productName',
+          'productImage',
+          'productDescription',
+          'productPrice',
+          'CategoryId',
+          'isDeleted',
+        ],
+        where: condition,
+        subQuery: false,
+        offset,
+        limit,
+        order: [[sortingField, sortOrder]], // Adding sorting order here
+      });
+  
+      const total = await product.count({ where: condition });
+  
+      res.status(200).send({
+        totalPage: Math.ceil(total / limit),
+        currentPage: page,
+        totalProduct: total,
+        result,
+      });
+    } catch (error) {
+      res.status(400).send(error);
+    }
+  },
+  
       
     addProduct: async(req,res)=>{
         try {

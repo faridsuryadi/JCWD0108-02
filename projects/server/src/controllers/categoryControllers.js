@@ -5,8 +5,20 @@ const {Op, Sequelize} = require('sequelize')
 module.exports = {
     getCategory : async(req,res)=>{
         try {
-            const result = await category.findAll({attributes:["id","Category"]})
-            res.status(200).send(result)
+            const id = req.params.id
+            const page = +req.query.page || 1;
+            const limit = +req.query.limit || 100;
+            const offset = (page - 1) * limit;
+            const condition = {isDeleted : false}
+            const total = await category.count()
+            const result = await category.findAll({attributes:["id","Category"],limit, offset, where:condition})
+            res.status(200).send({
+                totalPage: Math.ceil(total / limit),
+                currentPage: page,
+                totalCategory: total,
+                result,
+                status: true,
+              })
         } catch (error) {
             console.log(error);
             res.status(400).send({error, msg:"Failed to get category"})

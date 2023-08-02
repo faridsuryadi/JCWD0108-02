@@ -20,7 +20,9 @@ import { DashboardCashier } from "./components/admin/dashboardCashier";
 import { TransHistory } from "./pages/transHistory";
 import { AdminReport } from "./components/dashboard/report/transTable";
 
+function App() {
 const router = createBrowserRouter([
+  
   { path: "/login", element: <Login /> },
   { path: "/forgotpass", element: <ForgotPassword /> },
   { path: '/admin', element: <AdminDashboard />, children: [
@@ -28,7 +30,7 @@ const router = createBrowserRouter([
     { path: 'cashier', element: <Cashier />},
     { path: 'report', element: <AdminReport />}
   ]},
-  {path:"/", element:<Navbar/>, children:[
+  {path:"/", element:<Navbar onSearchQueryChange={handleSearchQueryChange} />, children:[
     {path: "/",element:<Homepage/>},
     {path: "detail",element:<Detailpage/>},
     {path: "create",element:<CreateProduct/>},
@@ -46,22 +48,18 @@ const router = createBrowserRouter([
     {path:"/",
     element:<Navbar/>,
     children:[
-      {path: "/",element:<Homepage/>},
+      {path: "/",element:<Homepage searchQuery={searchQuery} />},
     ]
   },
-  {path: "/dashboard",element:<DashboardProduct/>},
-  {path: "/cashier",element:<DashboardCashier/>},
+  {path: "/dashboardproduct",element:<DashboardProduct/>},
+  {path: "/dashboardcashier",element:<DashboardCashier/>},
     ]
 )
   
-
-
-
-
-
-function App() {
   const token = localStorage.getItem("token");
- 
+  const [searchQuery, setSearchQuery] = useState('');
+
+  
   const headers = {
     Authorization: `Bearer ${token}`,
   };

@@ -50,7 +50,7 @@ export const CreateProduct = ({ onCloseModal }) => {
 
     try {
       const response = await Axios.post('http://localhost:8000/api/products', formData);
-      setSuccessMessage(response.data);
+      setSuccessMessage(response.data.result);
       setErrorMessage('');
     } catch (error) {
       setErrorMessage('Failed to add product');
@@ -60,8 +60,9 @@ export const CreateProduct = ({ onCloseModal }) => {
 
   const getCategories = async () => {
     try {
-      const response = await Axios.get('http://localhost:8000/api/categories');
-      setCategories(response.data);
+      const response = await Axios.get(`http://localhost:8000/api/categories?&limit=100`);
+      console.log(response);
+      setCategories(response.data.result);
     } catch (error) {
       console.log(error);
     }
@@ -174,6 +175,5 @@ export const CreateProduct = ({ onCloseModal }) => {
       )}
     </Box>
   </Center>
-
   );
 };
